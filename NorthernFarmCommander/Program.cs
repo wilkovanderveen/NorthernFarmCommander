@@ -1,71 +1,7 @@
-﻿using System.Drawing;
+﻿using NorthernFarmCommander.UI.Components;
 
 namespace NorthernFarmCommander
 {
-    public class BorderConstants
-    {
-        public const char TopLeft = '\u2554';
-        public const char HorizontalDoubleLine = '\u2550';
-        public const char HorizontalSingleLine = '\u2500';
-        public const char TopRight = '\u2557';
-        public const char VerticalDoubleLine = '\u2551';
-        public const char RightConnectedHorizonalLine = '\u2562';
-        public const char LeftConnectedHorizonalLine = '\u255F';
-        public const char BottomLeft = '\u255A';
-        public const char BottomRight = '\u255D';
-    }
-
-    public class Panel
-    {
-        public Panel(int left, int top, int width, int height, ConsoleColor backgroundColor, ConsoleColor foregroundColor)
-        {
-            Left = left;
-            Top = top;
-            Width = width;
-            Height = height;
-            BackgroundColor = backgroundColor;
-            ForegroundColor = foregroundColor;
-        }
-
-        public int Left { get; }
-        public int Top { get; }
-        public int Width { get; }
-        public int Height { get; }
-        public ConsoleColor BackgroundColor { get; }
-        public ConsoleColor ForegroundColor { get; }
-
-        public void Draw()
-        {
-            Console.BackgroundColor = BackgroundColor;
-
-            Console.Write(BorderConstants.TopLeft);
-            Console.Write(string.Concat(Enumerable.Repeat(BorderConstants.HorizontalDoubleLine, Width - 1)));
-            Console.Write(BorderConstants.TopRight);
-
-            for (int y = 1; y < Height - 2; y++)
-            {
-                Console.SetCursorPosition(0, y);
-                Console.Write(BorderConstants.VerticalDoubleLine);
-                Console.Write(string.Concat(Enumerable.Repeat(' ', Width - 1)));
-                Console.Write(BorderConstants.VerticalDoubleLine);
-            }
-
-            Console.SetCursorPosition(0, Height - 2);
-            Console.Write(BorderConstants.VerticalDoubleLine);
-            Console.Write(string.Concat(Enumerable.Repeat(BorderConstants.HorizontalSingleLine, Width - 1)));
-            Console.Write(BorderConstants.VerticalDoubleLine);
-
-            Console.SetCursorPosition(0, Height - 1);
-            Console.Write(BorderConstants.VerticalDoubleLine);
-            Console.Write(string.Concat(Enumerable.Repeat(' ', Width - 1)));
-            Console.Write(BorderConstants.VerticalDoubleLine);
-
-            Console.SetCursorPosition(0, Height);
-            Console.Write(BorderConstants.BottomLeft);
-            Console.Write(string.Concat(Enumerable.Repeat(BorderConstants.HorizontalDoubleLine, Width - 1)));
-            Console.Write(BorderConstants.BottomRight);
-        }
-    }
 
     internal class Program
     {
@@ -73,8 +9,9 @@ namespace NorthernFarmCommander
         {
             var panelWidth = Console.WindowWidth / 2;
             var panelHeight = 20;
+            var panelBackgroundColor = ConsoleColor.Blue;
 
-            var leftPanel = new Panel(0, 0, panelWidth, panelHeight, ConsoleColor.Blue, ConsoleColor.DarkBlue);
+            var leftPanel = new Panel(0, 0, panelWidth, panelHeight, panelBackgroundColor, ConsoleColor.DarkBlue);
             leftPanel.Draw();
 
             var currentFolderDisplayName = Directory.GetCurrentDirectory();
@@ -92,11 +29,54 @@ namespace NorthernFarmCommander
             Console.Write(currentFolderDisplayName);
 
             Console.SetCursorPosition(1, 1);
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            
-            // Write columns
+
+            var table = new Table(panelBackgroundColor, ConsoleColor.Yellow, Console.ForegroundColor, leftPanel.Width, 17);
+
+            table.AddColumn("Name", 50);
+            table.AddColumn("Size", 30);
+            table.AddColumn("Date", 20);
+
+            table.Draw();
+
+            var tableData = currentDirectory.GetFileSystemInfos();
+
+            Console.SetCursorPosition(1, 2);
+            var itemNumber = 1;
+
+            var currentPosition = Console.GetCursorPosition();
+
+            foreach (var item in tableData.Take(17))
+            {
+                var currentFileSystemInfoDisplayName = item.Name;
+                if (currentFileSystemInfoDisplayName.Length > 30)
+
+                    currentFileSystemInfoDisplayName = item.Name.Substring(0, 27) + "...";
+
+                Console.Write(currentFileSystemInfoDisplayName);
+
+                Console.SetCursorPosition(currentPosition.Left + 30 + 1, currentPosition.Top + itemNumber);
+
+                if (item is FileInfo fileInfo)
+                {
+                    Console.Write(fileInfo.Length);
+                }
+
+                if (item is DirectoryInfo directoryInfo)
+                {
+                    Console.Write(string.Concat('\u25C4', "SUB-DIRECTORY", '\u25B6'));
+                }
+
+
+                Console.SetCursorPosition(1, currentPosition.Top + itemNumber);
+
+
+
+                itemNumber++;
+            }
 
             Console.SetCursorPosition(0, panelHeight + 1);
         }
+
+
     }
 }
