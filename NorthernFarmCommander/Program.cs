@@ -32,9 +32,9 @@ namespace NorthernFarmCommander
 
             var table = new Table(panelBackgroundColor, ConsoleColor.Yellow, Console.ForegroundColor, leftPanel.Width, 17);
 
-            table.AddColumn("Name", 50);
-            table.AddColumn("Size", 30);
-            table.AddColumn("Date", 20);
+            table.AddColumn("Name", 42);
+            table.AddColumn("Size", 28);
+            table.AddColumn("Date", 30);
 
             table.Draw();
 
@@ -48,17 +48,20 @@ namespace NorthernFarmCommander
             foreach (var item in tableData.Take(17))
             {
                 var currentFileSystemInfoDisplayName = item.Name;
-                if (currentFileSystemInfoDisplayName.Length > 30)
+                if (currentFileSystemInfoDisplayName.Length > 26)
 
-                    currentFileSystemInfoDisplayName = item.Name.Substring(0, 27) + "...";
+                    currentFileSystemInfoDisplayName = item.Name.Substring(0, 22) + "...";
 
                 Console.Write(currentFileSystemInfoDisplayName);
 
-                Console.SetCursorPosition(currentPosition.Left + 30 + 1, currentPosition.Top + itemNumber);
+                Console.SetCursorPosition(currentPosition.Left + table.Columns.ElementAt(0).Width + 1, currentPosition.Top - 1 + itemNumber);
 
                 if (item is FileInfo fileInfo)
                 {
-                    Console.Write(fileInfo.Length);
+                    var formattedFileSize = fileInfo.Length.ToString("###,###");
+                    Console.SetCursorPosition(currentPosition.Left + table.Columns.ElementAt(0).Width + 1 + table.Columns.ElementAt(1).Width + formattedFileSize.Length, currentPosition.Top + itemNumber);
+                    
+                    Console.Write(formattedFileSize);
                 }
 
                 if (item is DirectoryInfo directoryInfo)
@@ -66,10 +69,10 @@ namespace NorthernFarmCommander
                     Console.Write(string.Concat('\u25C4', "SUB-DIRECTORY", '\u25B6'));
                 }
 
+                Console.SetCursorPosition(currentPosition.Left + 43, currentPosition.Top + itemNumber - 1);
+                Console.Write(item.CreationTime.ToString("dd-MM-yyyy hh:mm"));
 
                 Console.SetCursorPosition(1, currentPosition.Top + itemNumber);
-
-
 
                 itemNumber++;
             }

@@ -17,6 +17,7 @@ namespace NorthernFarmCommander
         public string Name { get; }
         public int Width { get; }
         public int Height { get; }
+       
         public ConsoleColor BackgroundColor { get; }
         public ConsoleColor TitleColor { get; }
         public ConsoleColor ForegroundColor { get; }
